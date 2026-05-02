@@ -208,3 +208,24 @@ screen world_interface():
                                                     ]
                                                     text_idle_color "#ccc"
                                                     text_hover_color "#e15a00"
+
+            # --- FREQUENCY COLUMN ---
+            vbox:
+                xsize 280
+                spacing 0
+
+                fixed:
+                    xsize 280 ysize 280
+                    add OS_Window(280, 280)
+                    frame:
+                        background None
+                        padding (15, 15)
+                        vbox:
+                            spacing 6
+                            label "FREQ_LEVELS" text_color "#e15a00" text_size 18
+                            for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Death", "Blood", "Void"]:
+                                $ freq_val = 0 if freq_name == "Void" else inventory.frequency[freq_name]
+                                hbox:
+                                    spacing 6
+                                    text ("> " + freq_name.upper() + "..") color "#e15a00" size 18
+                                    text "[freq_val]" color "#ccc" size 18

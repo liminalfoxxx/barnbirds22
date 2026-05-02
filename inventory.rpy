@@ -1,19 +1,21 @@
 init -10 python:
     class Item:
         # Added use_func=None to the parameters
-        def __init__(self, name, cost=0, description="No data found.", img=None, use_func=None):
+        def __init__(self, name, cost=0, description="No data found.", img=None, use_func=None, frequency_type=None):
             self.name = name
             self.cost = cost
             self.description = description
             self.img = img 
             self.amount = 1
             self.use_func = use_func # Stores the transformation logic
+            self.frequency_type = frequency_type
 
     class Spell: 
-        def __init__(self, name, recipe, description=""):
+        def __init__(self, name, recipe, description="", frequency_type=None):
             self.name = name
             self.recipe = recipe 
             self.description = description
+            self.frequency_type = frequency_type
 
         def can_cast(self, inventory):
             for item_name, req_amount in self.recipe.items():
@@ -26,6 +28,7 @@ init -10 python:
             self.money = money
             self.items = []
             self.known_spells = []
+            self.frequency = {"Primal": 0, "Seelie": 0, "Unseelie": 0, "Storm": 0, "Death": 0, "Blood": 0, "Void": 0}
             
         def buy(self, item):
             if self.money >= item.cost:
@@ -81,8 +84,30 @@ init -10 python:
                 return True 
             return False
 
+        def gain_frequency(self, freq_type, amount=1):
+            if freq_type and freq_type in self.frequency and freq_type != "Void":
+                self.frequency[freq_type] = min(33, self.frequency[freq_type] + amount)
+
+        def spend_frequency(self, freq_type):
+            if freq_type and freq_type in self.frequency and freq_type != "Void":
+                if self.frequency[freq_type] > 0:
+                    self.frequency[freq_type] -= 1
+                    return True
+                return False
+            return True  # If no freq_type required, don't block the cast
+
 # --- SCREENS ---
 default selected_item = None
+
+init python:
+    def use_frequency_item():
+        if not selected_item or not selected_item.frequency_type:
+            return
+        freq_type = selected_item.frequency_type
+        inventory.remove_by_name(selected_item.name)
+        inventory.gain_frequency(freq_type)
+        renpy.notify("ABSORBED: +1 " + freq_type.upper() + " FREQUENCY")
+        store.selected_item = None
 
 screen inventory_screen():
     modal True
@@ -145,6 +170,14 @@ screen inventory_screen():
                                     null height 20
                                     textbutton "[[ USE_MODULE ]]":
                                         action Function(selected_item.use_func)
+                                        xalign 0.5
+                                        text_size 30
+                                        text_idle_color "#0f0"
+                                        text_hover_color "#fff"
+                                elif selected_item.frequency_type:
+                                    null height 20
+                                    textbutton "[[ USE_MODULE ]]":
+                                        action Function(use_frequency_item)
                                         xalign 0.5
                                         text_size 30
                                         text_idle_color "#0f0"
