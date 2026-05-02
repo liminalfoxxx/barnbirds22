@@ -3,18 +3,18 @@
 # These are "templates" that you can award to the player later with:
 #   $ inventory.learn_spell(<spell_var>)
 # The player currently starts with Ghost_Speak.exe and Speak with Animals from script.rpy.
-default ghost_speak_prog = Spell("Ghost_Speak", {"Belladonna": 1, "Candle": 1, "Cassette": 1})
-default animal_speak_prog = Spell("Animal_Speak", {"Catnip": 1, "Bone": 1, "Candle": 1})
+default ghost_speak_prog = Spell("Ghost_Speak", {"Belladonna": 1, "Candle": 1, "Cassette": 1}, frequency_type="Death")
+default animal_speak_prog = Spell("Animal_Speak", {"Catnip": 1, "Bone": 1, "Candle": 1}, frequency_type="Primal")
 
 # DELETE (Destruction) – uses the Destruction Scroll
-default delete_prog = Spell("Delete", {"Destruction_Scroll": 1}, "Deletes obstacles in your way. 'WARNING: HIGHLY UNSTABLE CODE.'")
+default delete_prog = Spell("Delete", {"Destruction_Scroll": 1}, "Deletes obstacles in your way. 'WARNING: HIGHLY UNSTABLE CODE.'", frequency_type="Unseelie")
 
 # HEAL_BLIGHT – heals infected living targets (Seagull, Secretary, Ptarmigan)
-default heal_blight_prog = Spell("Heal_Blight", {"Placeholder_A": 1, "Placeholder_B": 1, "Placeholder_C": 1}, "Cleanses a living system of the Blight. Can only be cast on the infected.")
+default heal_blight_prog = Spell("Heal_Blight", {"Placeholder_A": 1, "Placeholder_B": 1, "Placeholder_C": 1}, "Cleanses a living system of the Blight. Can only be cast on the infected.", frequency_type="Seelie")
 
 # HACK – previously Power_Surge, opens special device dialogues
 # Requires the item names exactly as in your item_db: "Orange Soda" and "Cassette".
-default hack_prog = Spell("Hack", {"Orange Soda": 1, "Cassette": 1}, "Interfaces with devices and automation systems to unlock dialogues.")
+default hack_prog = Spell("Hack", {"Orange Soda": 1, "Cassette": 1}, "Interfaces with devices and automation systems to unlock dialogues.", frequency_type="Storm")
 
 
 init python:
@@ -35,6 +35,13 @@ init python:
 
         # Debug helper in Shift+O
         print(f"CLEAN_ID: Program({program_id}) Target({target_id})")
+
+        # Check and spend frequency before anything else
+        if program.frequency_type:
+            if not inv.spend_frequency(program.frequency_type):
+                renpy.notify("ERROR: INSUFFICIENT_FREQUENCY")
+                renpy.jump("overworld_loop")
+                return
 
         # 2) Dispatch by program_id
 
@@ -297,6 +304,17 @@ screen spellbook_screen():
                                         xalign 0.5
                                 else:
                                     text "[[ INSUFFICIENT_RESOURCES ]]" color "#ff8000" size 40 xalign 0.5
+
+                                null height 20
+                                label "FREQUENCY_LEVELS" text_color "#e15a00"
+                                for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Death", "Blood", "Void"]:
+                                    hbox:
+                                        spacing 10
+                                        $ freq_label = "> " + freq_name.upper() + "....."
+                                        $ freq_val = 0 if freq_name == "Void" else inventory.frequency[freq_name]
+                                        $ is_active = selected_program.frequency_type == freq_name
+                                        text "[freq_label]" color ("#fff" if is_active else "#e15a00") size 22
+                                        text "[freq_val]" color ("#0f0" if is_active else "#ccc") size 22
                         else:
                             vbox:
                                 align (0.5, 0.4)
