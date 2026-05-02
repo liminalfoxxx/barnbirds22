@@ -223,7 +223,7 @@ screen world_interface():
                         vbox:
                             spacing 6
                             label "FREQ_LEVELS" text_color "#e15a00" text_size 18
-                            for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Death", "Blood", "Void"]:
+                            for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Life", "Death", "Blood", "Void"]:
                                 $ freq_val = 0 if freq_name == "Void" else inventory.frequency[freq_name]
                                 hbox:
                                     spacing 6
