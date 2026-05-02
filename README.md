@@ -1,1 +1,3 @@
-# barnbirds22
+# AvisMortemOS
+
+A Ren'Py visual novel / adventure game.
