@@ -3,30 +3,30 @@
 define d = Character(
     "Dove",
     color="#e1c400",
-    window_background=Frame("images/ui/text_yellow.png"),
+    window_background=None,
     image="dove",
-    what_color="#000000",
+    what_color="#e1c400",
 )
 define r = Character(
     "Raven",
     color="#4700d1",
-    window_background=Frame("images/ui/text_blue.png"),
+    window_background=None,
     image="raven",
-    what_color="#000000",
+    what_color="#7755ee",
 )
 define s = Character(
     "Swan",
     color="#ffffff",
-    window_background=Frame("images/ui/text_yellow.png"),
+    window_background=None,
     image="swan",
-    what_color="#000000",
+    what_color="#ffffff",
 )
 define seagull = Character(
     "Seagull",
-    color="#333366",
-    window_background=Frame("images/ui/text_yellow.png"),
+    color="#8899cc",
+    window_background=None,
     image="seagull",
-    what_color="#000000",
+    what_color="#8899cc",
 )
 define sca = Character(
     "Scarlet Tanager",
