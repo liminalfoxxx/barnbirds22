@@ -20,6 +20,7 @@ default prologue_modules_button_enabled = False
 default prologue_select_idx = None
 default prologue_connect_ready = False
 default prologue_loading_progress = 0.0
+default prologue_open1_done = False
 
 label opening_cutscene:
     $ prologue_loading_progress = 0.0
@@ -28,6 +29,7 @@ label opening_cutscene:
     $ prologue_modules_button_enabled = False
     $ prologue_select_idx = None
     $ prologue_connect_ready = False
+    $ prologue_open1_done = False
 
     call screen prologue_loading_screen
     while not prologue_link_ready:
@@ -97,6 +99,7 @@ screen prologue_video_screen():
     modal True
     zorder 101
     add Solid("#0d0d0d")
+
     vbox:
         align (0.5, 0.5)
         spacing 34
@@ -106,9 +109,16 @@ screen prologue_video_screen():
             ysize 400
             xalign 0.5
             yalign 0.5
-            add Movie(size=(640,360), play="images/vids/open_1.webm", loop=False) align (0.5,0.5)
-            text "Opening Video" color "#fff" size 18 xalign 0.5 yalign 1.0
-    textbutton "[VIEW MODULES]" style "prologue_initial_button" action [SetVariable("prologue_modules_ready", True), Hide("prologue_video_screen")] xalign 0.5
+            if prologue_open1_done:
+                add Movie(size=(640,360), play="images/vids/open2.webm", loop=True) align (0.5, 0.5)
+            else:
+                add Movie(size=(640,360), play="images/vids/open1.webm", loop=False) align (0.5, 0.5)
+
+    if prologue_open1_done:
+        textbutton "[VIEW MODULES]" style "prologue_initial_button" action [SetVariable("prologue_modules_ready", True), Hide("prologue_video_screen")] xalign 0.5
+
+    if not prologue_open1_done:
+        timer 7.0 action SetVariable("prologue_open1_done", True)
 
 screen prologue_player_select_screen():
     modal True
