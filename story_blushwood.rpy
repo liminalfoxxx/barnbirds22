@@ -717,18 +717,18 @@ label heal_ptarmigan:
 
 label cabin_blocked:
     if getattr(store, "cabin_roots_deleted", False):
-        "The remains of enormous, charred roots litter the path. The cabin door stands open."
-        jump after_delete_roots
+        "The remains of enormous, withered roots litter the path. The cabin door stands open."
+        jump after_prune_roots
     else:
         "The roots hum with a deadly magical frequency. Access Denied."
         jump overworld_loop
 
-label after_delete_roots:
+label after_prune_roots:
     $ cabin_roots_deleted = True
-    # Unlock the cabin door once roots are deleted
+    # Unlock the cabin door once roots are pruned
     $ cabin_unlocked = True
     $ cabin_door.locked = False
-    "As you cast DELETE, the MAGICAL_ROOTS crackle and burn away, leaving the path to the cabin unblocked."
+    "As you cast PRUNE.EXE, the MAGICAL_ROOTS wither and crumble away, leaving the path to the cabin unblocked."
     "A presence waits by the threshold - an elegant, spectral figure of a SWAN. (Placeholder: Swan introductory event goes here.)"
     jump overworld_loop
 
@@ -1068,3 +1068,22 @@ label swan_avm_confirm:
             s "Come back when you are."
             jump overworld_loop
 
+
+
+label hack_pc_terminal:
+    sys "ACCESS_GRANTED. Scanning local index..."
+    sys "// TODO: PC Terminal hack content goes here."
+    $ can_travel = True
+    jump overworld_loop
+
+label hack_vending_machine:
+    sys "HACK.EXE interfacing with [hack_target.name]..."
+    sys "// TODO: Vending machine hack content goes here."
+    $ can_travel = True
+    jump overworld_loop
+
+label hack_slot_machine:
+    sys "HACK.EXE interfacing with SLOT_MACHINE..."
+    sys "// TODO: Slot machine hack content goes here."
+    $ can_travel = True
+    jump overworld_loop

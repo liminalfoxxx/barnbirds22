@@ -2,19 +2,13 @@
 
 # These are "templates" that you can award to the player later with:
 #   $ inventory.learn_spell(<spell_var>)
-# The player currently starts with Ghost_Speak.exe and Speak with Animals from script.rpy.
-default ghost_speak_prog = Spell("Ghost_Speak", {"Belladonna": 1, "Candle": 1, "Cassette": 1}, frequency_type="Death")
-default animal_speak_prog = Spell("Animal_Speak", {"Catnip": 1, "Bone": 1, "Candle": 1}, frequency_type="Primal")
-
-# DELETE (Destruction) – uses the Destruction Scroll
-default delete_prog = Spell("Delete", {"Destruction_Scroll": 1}, "Deletes obstacles in your way. 'WARNING: HIGHLY UNSTABLE CODE.'", frequency_type="Unseelie")
-
-# HEAL_BLIGHT – heals infected living targets (Seagull, Secretary, Ptarmigan)
-default heal_blight_prog = Spell("Heal_Blight", {"Placeholder_A": 1, "Placeholder_B": 1, "Placeholder_C": 1}, "Cleanses a living system of the Blight. Can only be cast on the infected.", frequency_type="Seelie")
-
-# HACK – previously Power_Surge, opens special device dialogues
-# Requires the item names exactly as in your item_db: "Orange Soda" and "Cassette".
-default hack_prog = Spell("Hack", {"Orange Soda": 1, "Cassette": 1}, "Interfaces with devices and automation systems to unlock dialogues.", frequency_type="Storm")
+default ghost_speak_prog = Spell("Speak_With_Ghosts", {"Cassette": 1, "Belladonna": 1, "Mugwort": 1}, "Establishes a spectral link. Allows communication with the dead.", frequency_type="Death")
+default animal_speak_prog = Spell("Speak_With_Animals", {"Bird of Paradise": 1, "Catnip": 1, "Bone": 1}, "Activates the Animal Translator. Allows communication with animals.", frequency_type="Primal")
+default satellite_prog = Spell("Satellite", {"Apple": 1, "Gold Foil": 1, "Sunflower": 1}, "Displays hidden data signals for a living target: Frequency, Signal, Status.", frequency_type="Life")
+default heal_blight_prog = Spell("Heal_Blight", {"Snowdrop": 1, "Lemon Balm": 1, "Candle": 1}, "Cleanses a living system of the Blight. Can only be cast on the infected.", frequency_type="Seelie")
+default prune_prog = Spell("Prune", {"Foxglove": 1, "Sassafras": 1, "Corrupted VHS Tape": 1}, "Clears corrupted growth from sealed pathways.", frequency_type="Unseelie")
+default money_manifest_prog = Spell("Money_Manifest", {"Honeycomb": 1, "Blood": 1, "Gold Coin": 1}, "Manifests currency through blood ritual. Amount is randomized.", frequency_type="Blood")
+default hack_prog = Spell("Hack", {"Circuit Board": 1, "Copper Wire": 1, "Quartz": 1}, "Interfaces with devices and automation systems to unlock hidden data or alter properties.", frequency_type="Storm")
 
 
 init python:
@@ -23,15 +17,20 @@ init python:
         Central router for resolving a spell cast on the current_target.
 
         program: a Spell instance from inventory.known_spells
-        target:  a WorldObject currently selected (current_target)
+        target:  a WorldObject currently selected (current_target), or None for self-targeting spells
         inv:     the player's Inventory
         """
-        if not target or not program:
+        if not program:
             return
 
-        # 1) Normalize names for matching
+        # 1) Normalize program name for matching
         program_id = program.name.upper().replace(" ", "_").replace(".EXE", "")
-        target_id = target.name.upper().replace(" ", "_")
+
+        # Compute target_id only when a target is provided
+        if target is not None:
+            target_id = target.name.upper().replace(" ", "_")
+        else:
+            target_id = None
 
         # Debug helper in Shift+O
         print(f"CLEAN_ID: Program({program_id}) Target({target_id})")
@@ -45,10 +44,13 @@ init python:
 
         # 2) Dispatch by program_id
 
-        # --- GHOST SPEAK LOGIC ---
-        if program_id == "GHOST_SPEAK":
-            # Valid spectral targets
-            valid_targets = {"SCARLET_TANAGER", "FALCON", "SHRIKE", "LOST_SOUL", "CASSOWARY", "ROOSTER", "GHOST_CAT"}
+        # --- SPEAK_WITH_GHOSTS LOGIC ---
+        if program_id == "SPEAK_WITH_GHOSTS":
+            if target is None:
+                renpy.notify("ERROR: NO_TARGET_SELECTED")
+                renpy.jump("overworld_loop")
+                return
+            valid_targets = {"SCARLET_TANAGER", "SCARLET_WRAITH", "FALCON", "SHRIKE", "SNOWY_OWL", "KITE", "MURMURATION", "LOST_SOUL", "CASSOWARY", "ROOSTER", "GHOST_CAT"}
             if target_id in valid_targets:
                 # If the ghost hasn't been "decrypted" to can_talk, pay the recipe and enable
                 if not target.can_talk:
@@ -67,9 +69,13 @@ init python:
                 renpy.notify("INCOMPATIBLE_SUBJECT_TYPE")
                 renpy.jump("overworld_loop")
 
-        # --- ANIMAL SPEAK LOGIC ---
-        elif program_id in {"ANIMAL_SPEAK", "SPEAK_WITH_ANIMALS"}:
-            valid_targets = {"PATCH_CAT", "STRAY_DOG", "CROW", "SPIDER"}
+        # --- SPEAK_WITH_ANIMALS LOGIC ---
+        elif program_id == "SPEAK_WITH_ANIMALS":
+            if target is None:
+                renpy.notify("ERROR: NO_TARGET_SELECTED")
+                renpy.jump("overworld_loop")
+                return
+            valid_targets = {"PATCH_CAT", "STRAY_DOG", "CROW", "SPIDER", "STRAWBERRY_COW", "ROYAL_UNICORN"}
             if target_id in valid_targets:
                 if not store.can_speak_with_animals:
                     if inv.execute_program(program):
@@ -86,23 +92,28 @@ init python:
                 renpy.notify("INCOMPATIBLE_SUBJECT_TYPE")
                 renpy.jump("overworld_loop")
 
-        # --- DELETE / DESTRUCTION LOGIC ---
-        elif program_id == "DELETE":
-            # Currently only used for the MAGICAL_ROOTS
-            if target_id == "MAGICAL_ROOTS":
-                if inv.execute_program(program):
-                    renpy.notify("PROGRAM DELETE SUCCESSFUL. Roots eradicated.")
-                    store.cabin_roots_deleted = True
-                    renpy.jump("after_delete_roots")
-                else:
-                    renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
-                    renpy.jump("overworld_loop")
+        # --- SATELLITE LOGIC ---
+        elif program_id == "SATELLITE":
+            if target is None:
+                renpy.notify("ERROR: NO_TARGET_SELECTED")
+                renpy.jump("overworld_loop")
+                return
+            if not hasattr(target, "sat_frequency"):
+                renpy.notify("ERROR: NO_SIGNAL_DETECTED")
+                renpy.jump("overworld_loop")
+                return
+            if inv.execute_program(program):
+                renpy.show_screen("satellite_screen", target=target)
             else:
-                renpy.notify("ERROR: THIS PROGRAM'S CODE WILL NOT WORK HERE.")
+                renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
                 renpy.jump("overworld_loop")
 
         # --- HEAL_BLIGHT LOGIC ---
         elif program_id == "HEAL_BLIGHT":
+            if target is None:
+                renpy.notify("ERROR: NO_TARGET_SELECTED")
+                renpy.jump("overworld_loop")
+                return
             # One-time cures with simple flags
             if target_id == "SEAGULL" and not getattr(store, "seagull_healed", False):
                 if inv.execute_program(program):
@@ -132,9 +143,46 @@ init python:
                 renpy.notify("This spell will not work on this target... or they've already been healed.")
                 renpy.jump("overworld_loop")
 
+        # --- PRUNE LOGIC ---
+        elif program_id == "PRUNE":
+            if target is None:
+                renpy.notify("ERROR: NO_TARGET_SELECTED")
+                renpy.jump("overworld_loop")
+                return
+            if target_id in {"MAGICAL_ROOTS", "CABIN_DOOR"}:
+                if not getattr(store, "cabin_roots_deleted", False):
+                    if inv.execute_program(program):
+                        renpy.notify("PRUNE.EXE SUCCESSFUL. Corruption cleared.")
+                        store.cabin_roots_deleted = True
+                        renpy.jump("after_prune_roots")
+                    else:
+                        renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
+                        renpy.jump("overworld_loop")
+                else:
+                    renpy.notify("Nothing left to prune here.")
+                    renpy.jump("overworld_loop")
+            else:
+                renpy.notify("ERROR: THIS PROGRAM'S CODE WILL NOT WORK HERE.")
+                renpy.jump("overworld_loop")
+
+        # --- MONEY_MANIFEST LOGIC ---
+        elif program_id == "MONEY_MANIFEST":
+            if inv.execute_program(program):
+                amount = renpy.random.randint(1, 99)
+                inv.earn(amount)
+                renpy.notify("MANIFEST_SUCCESSFUL: +{}_UNITS".format(amount))
+                renpy.jump("overworld_loop")
+            else:
+                renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
+                renpy.jump("overworld_loop")
+
         # --- HACK LOGIC ---
         elif program_id == "HACK":
-            valid_targets = {"AUTOMATON_GUIDE", "PC_TERMINAL", "ARCADE_MACHINE"}
+            if target is None:
+                renpy.notify("ERROR: NO_TARGET_SELECTED")
+                renpy.jump("overworld_loop")
+                return
+            valid_targets = {"AUTOMATON_GUIDE", "PC_TERMINAL", "ARCADE_MACHINE", "VENDING_MACHINE", "VENDING_MILL", "VENDING_SQUARE", "VENDING_PARLOR", "SLOT_MACHINE"}
             if target_id in valid_targets:
                 # Automaton Guide one-shot activation
                 if target_id == "AUTOMATON_GUIDE" and not getattr(store, "turkey_activated", False):
@@ -144,16 +192,16 @@ init python:
                     else:
                         renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
                         renpy.jump("overworld_loop")
-                
+
                 # PC Terminal dialog
                 elif target_id == "PC_TERMINAL":
                     if inv.execute_program(program):
-                        renpy.jump("hack_terminal")
+                        renpy.jump("hack_pc_terminal")
                     else:
                         renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
                         renpy.jump("overworld_loop")
-                
-                # NEW: Arcade Machine fix
+
+                # Arcade Machine fix
                 elif target_id == "ARCADE_MACHINE" and not getattr(store, "arcade_machine_fixed", False):
                     if inv.execute_program(program):
                         setattr(store, "arcade_machine_fixed", True)
@@ -164,7 +212,25 @@ init python:
                     else:
                         renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
                         renpy.jump("overworld_loop")
-                
+
+                # Vending machines
+                elif target_id in {"VENDING_MACHINE", "VENDING_MILL", "VENDING_SQUARE", "VENDING_PARLOR"}:
+                    if inv.execute_program(program):
+                        store.hack_target = target
+                        renpy.jump("hack_vending_machine")
+                    else:
+                        renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
+                        renpy.jump("overworld_loop")
+
+                # Slot machine
+                elif target_id == "SLOT_MACHINE":
+                    if inv.execute_program(program):
+                        store.hack_target = target
+                        renpy.jump("hack_slot_machine")
+                    else:
+                        renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
+                        renpy.jump("overworld_loop")
+
                 else:
                     renpy.notify("Nothing to hack here! Or this device is already functioning.")
                     renpy.jump("overworld_loop")
@@ -288,26 +354,40 @@ screen spellbook_screen():
 
                                 null height 40
 
-                                # Only allow execute if the player has all required items
-                                if selected_program.can_cast(inventory):
-                                    textbutton "[[ EXECUTE_PROGRAM ]]":
-                                        action If(
-                                            current_target,
-                                            [ Hide("spellbook_screen"),
-                                              Function(execute_cast_sequence, selected_program, current_target, inventory) ],
-                                            None
-                                        )
-                                        text_size 40
-                                        text_insensitive_color "#222"
-                                        text_idle_color "#0f0"
-                                        text_hover_color "#fff"
-                                        xalign 0.5
+                                # Self-targeting spells vs target-required spells
+                                $ _is_self_spell = selected_program.name.upper().replace(" ", "_") == "MONEY_MANIFEST"
+
+                                if _is_self_spell:
+                                    if selected_program.can_cast(inventory):
+                                        textbutton "[[ EXECUTE_PROGRAM ]]":
+                                            action [Hide("spellbook_screen"),
+                                                    Function(execute_cast_sequence, selected_program, None, inventory)]
+                                            text_size 40
+                                            text_idle_color "#0f0"
+                                            text_hover_color "#fff"
+                                            xalign 0.5
+                                    else:
+                                        text "[[ INSUFFICIENT_RESOURCES ]]" color "#ff8000" size 40 xalign 0.5
                                 else:
-                                    text "[[ INSUFFICIENT_RESOURCES ]]" color "#ff8000" size 40 xalign 0.5
+                                    if selected_program.can_cast(inventory):
+                                        textbutton "[[ EXECUTE_PROGRAM ]]":
+                                            action If(
+                                                current_target,
+                                                [ Hide("spellbook_screen"),
+                                                  Function(execute_cast_sequence, selected_program, current_target, inventory) ],
+                                                None
+                                            )
+                                            text_size 40
+                                            text_insensitive_color "#222"
+                                            text_idle_color "#0f0"
+                                            text_hover_color "#fff"
+                                            xalign 0.5
+                                    else:
+                                        text "[[ INSUFFICIENT_RESOURCES ]]" color "#ff8000" size 40 xalign 0.5
 
                                 null height 20
                                 label "FREQUENCY_LEVELS" text_color "#e15a00"
-                                for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Death", "Blood", "Void"]:
+                                for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Life", "Death", "Blood", "Void"]:
                                     hbox:
                                         spacing 10
                                         $ freq_label = "> " + freq_name.upper() + "....."
@@ -319,3 +399,51 @@ screen spellbook_screen():
                             vbox:
                                 align (0.5, 0.4)
                                 text "SELECT_PROGRAM_FOR_ANALYSIS" color "#444" size 34
+
+
+screen satellite_screen(target):
+    modal True
+    zorder 200
+    add Solid("#0d0d0d", alpha=0.85)
+
+    frame:
+        background Solid("#e15a00")
+        padding (2, 2)
+        align (0.5, 0.5)
+        xsize 600
+        frame:
+            background Solid("#0d0d0d")
+            padding (40, 40)
+            vbox:
+                spacing 20
+                label "SATELLITE.EXE // SIGNAL_SCAN" text_color "#e15a00" text_size 30
+                null height 10
+
+                text "[target.name]" color "#ff8000" size 36
+
+                null height 10
+                add Solid("#333", xsize=520, ysize=2)
+                null height 10
+
+                hbox:
+                    spacing 20
+                    text "FREQUENCY:" color "#e15a00" size 24 yalign 0.5
+                    text "[target.sat_frequency]" color "#0f0" size 24 yalign 0.5
+
+                hbox:
+                    spacing 20
+                    text "SIGNAL:" color "#e15a00" size 24 yalign 0.5
+                    text "[target.sat_signal]" color "#0f0" size 24 yalign 0.5
+
+                hbox:
+                    spacing 20
+                    text "STATUS:" color "#e15a00" size 24 yalign 0.5
+                    text "[target.sat_status]" color "#0f0" size 24 yalign 0.5
+
+                null height 20
+                textbutton "[[ CLOSE_SCAN ]]":
+                    action Hide("satellite_screen")
+                    xalign 0.5
+                    text_size 30
+                    text_idle_color "#e15a00"
+                    text_hover_color "#fff"

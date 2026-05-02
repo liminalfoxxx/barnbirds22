@@ -1,7 +1,7 @@
 # --- STEP 1: Blueprints ---
 init -10 python:
     class WorldObject:
-        def __init__(self, name, description, img, sprite, x, y, can_talk=False, can_take=False, can_open=False, can_cast=False, locked=False, label=None):
+        def __init__(self, name, description, img, sprite, x, y, can_talk=False, can_take=False, can_open=False, can_cast=False, locked=False, label=None, sat_frequency="---", sat_signal="---", sat_status="---"):
             self.name = name
             self.description = description
             self.img = img
@@ -14,6 +14,9 @@ init -10 python:
             self.can_cast = can_cast
             self.locked = locked 
             self.label = label
+            self.sat_frequency = sat_frequency
+            self.sat_signal = sat_signal
+            self.sat_status = sat_status
 
     class Room:
         def __init__(self, name, art, north=None, south=None, east=None, west=None, contents=None):
@@ -211,6 +214,7 @@ define item_db = {
 
     # === MISC ===
     "candle": Item("Candle", cost=0, description="Made with beeswax.", use_func=use_candle),
+    "blood": Item("Blood", cost=0, description="A vial of crimson life force, warm to the touch.", frequency_type="Blood"),
     "cigarette": Item("Cigarette", cost=0, description="A slim paper tube packed with bad ideas and numbing relief.", frequency_type="Death"),
     "catnip": Item("Catnip", cost=0, description="That good dank shit.", frequency_type="Life"),
     "mdma": Item("MDMA", cost=0, description="Experience physical sensation in a new way.", frequency_type="Life"),
@@ -452,6 +456,7 @@ default raven_moved_to_cafe = False
 default interaction_mode = "main" 
 default current_room = "blushwood_1" 
 default current_target = None
+default hack_target = None
 default can_speak_with_animals = False
 
 
