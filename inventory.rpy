@@ -28,7 +28,7 @@ init -10 python:
             self.money = money
             self.items = []
             self.known_spells = []
-            self.frequency = {"Primal": 0, "Seelie": 0, "Unseelie": 0, "Storm": 0, "Death": 0, "Blood": 0, "Void": 0}
+            self.frequency = {"Primal": 0, "Seelie": 0, "Unseelie": 0, "Storm": 0, "Life": 0, "Death": 0, "Blood": 0, "Void": 0}
             
         def buy(self, item):
             if self.money >= item.cost:

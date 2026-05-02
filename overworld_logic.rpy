@@ -66,8 +66,9 @@ init -10 python:
         item_key = target.name.lower().replace(" ", "_")
 
         if item_key == "money":
-            inv.money += 5
-            renpy.notify("RECEIVED: 5_UNITS")
+            amount = renpy.random.randint(1, 33)
+            inv.money += amount
+            renpy.notify("RECEIVED: {}_UNITS".format(amount))
         elif item_key in item_db:
             inv.add_item(item_db[item_key])
         else:
@@ -97,11 +98,26 @@ init -10 python:
             renpy.notify("ERROR: INVALID_INTERFACE_TARGET")
 
     def use_pumpkin_pie():
-        """Logic for eating the pie and getting a lantern."""
         if inventory.remove_by_name("Pumpkin Pie"):
-            inventory.add_item(item_db["jack_o_lantern"])
-            renpy.notify("CONVERSION_SUCCESSFUL: PIE -> LANTERN")
-            store.selected_item = None 
+            inventory.add_item(item_db["candle"])
+            renpy.notify("CONVERSION_SUCCESSFUL: PIE -> CANDLE")
+            store.selected_item = None
+        else:
+            renpy.notify("ERROR: MODULE_NOT_FOUND")
+
+    def use_candle():
+        if inventory.remove_by_name("Candle"):
+            inventory.add_item(item_db["honeycomb"])
+            renpy.notify("CONVERSION_SUCCESSFUL: CANDLE -> HONEYCOMB")
+            store.selected_item = None
+        else:
+            renpy.notify("ERROR: MODULE_NOT_FOUND")
+
+    def use_jack_o_lantern():
+        if inventory.remove_by_name("Jack o Lantern"):
+            inventory.add_item(item_db["candle"])
+            renpy.notify("CONVERSION_SUCCESSFUL: LANTERN -> CANDLE")
+            store.selected_item = None
         else:
             renpy.notify("ERROR: MODULE_NOT_FOUND")
 
@@ -110,28 +126,104 @@ init -10 python:
         store.last_room = store.current_room
         renpy.jump('death_sequence_poison')
 
+    def use_add_item(target_key, source_name, notify_name):
+        """Generic: consume source_name from inventory, add item_db[target_key]."""
+        if inventory.remove_by_name(source_name):
+            inventory.add_item(item_db[target_key])
+            renpy.notify("RECEIVED: " + notify_name)
+            store.selected_item = None
+        else:
+            renpy.notify("ERROR: MODULE_NOT_FOUND")
+
 # --- STEP 2: The Manifest ---
 define item_db = {
-    "belladonna": Item("Belladonna", cost=0, description="A toxic perennial with bell shaped flowers and small berries. Legend has it these plants allow communication with the dead."),
-    "mandrake": Item("Mandrake", cost=0, description="Highly disruptive root."),
-    "catnip": Item("Catnip", cost=5, description="It's that good dank shit"),
-    "cigarette": Item("Cigarette", cost=2, description="Something to take the edge off"),
-    "bone": Item("Bone", cost=0, description="A bleached fragment"),
-    "apple": Item("Apple", cost=0, description="Bright and flavorful"),
-    "cherries": Item("Cherries", cost=2, description="Sweet fruit found in the mill."),
-    "rusted_key": Item("Rusted Key", cost=0, description="Smells like cider."),
+
+    # === KEYS (do not remove) ===
     "GATE_KEY": Item("GATE_KEY", cost=0, description="Access to Blushwood Court Gate"),
     "library_access_key": Item("Library Access Key", cost=0, description="A magnetic card for restricted areas."),
-    "candle": Item("Candle", cost=0, description="An essential to any spell or ritual"),
-    "cassette": Item("Cassette", cost=0, description="Recordable tape."),
-    "soda": Item("Orange Soda", cost=4, description="A citrusy, bubbly delight. Made with real orange juice."),
-    "pumpkin_pie": Item("Pumpkin Pie", cost=5, description="A warm dessert with the scent of Hallow's Eve", use_func=use_pumpkin_pie),
-    "jack_o_lantern": Item("Jack o Lantern", cost=0, description="A carved pumpkin emitting a warm glow."),
+    "rusted_key": Item("Rusted Key", cost=0, description="Smells like cider."),
+    "silver_key": Item("SILVER_KEY", cost=0, description="A key to a trap door found inside a fountain."),
+
+    # === LEGACY / SYSTEM ITEMS (keep) ===
+    "jack_o_lantern": Item("Jack o Lantern", cost=0, description="A carved pumpkin with a warm, digital glow. Placeholder.", use_func=use_jack_o_lantern),
     "poison": Item("Poison", cost=0, description="This will kill you.", use_func=use_poison),
     "Destruction_Scroll": Item("Destruction_Scroll", cost=0, description="A forbidden spell scroll capable of deleting world geometry."),
     "placeholder_a": Item("Placeholder_A", cost=0, description="A placeholder spell component. TBD."),
     "placeholder_b": Item("Placeholder_B", cost=0, description="A placeholder spell component. TBD."),
     "placeholder_c": Item("Placeholder_C", cost=0, description="A placeholder spell component. TBD."),
+
+    # === FOOD & DRINK ===
+    "honeycomb_cake": Item("Honeycomb Cake", cost=0, description="A golden cake filled with real honeycomb.", frequency_type="Life"),
+    "pumpkin_pie": Item("Pumpkin Pie", cost=0, description="A spiced jack-o-lantern, freshly grounded and baked.", use_func=use_pumpkin_pie),
+    "cherry_pie": Item("Cherry Pie", cost=0, description="Deep red cherry filling spills out of a flaky crust.", frequency_type="Blood"),
+    "lemon_cake": Item("Lemon Cake", cost=0, description="Zesty, bright, and refreshingly sweet.", use_func=lambda: use_add_item("lemon_balm", "Lemon Cake", "LEMON BALM")),
+    "paradise_pastry": Item("Paradise Pastry", cost=0, description="A lavish, floral pastry that feels like something from a dream.", use_func=lambda: use_add_item("bird_of_paradise", "Paradise Pastry", "BIRD OF PARADISE")),
+    "paradise_punch": Item("Paradise Punch", cost=0, description="A brilliantly tropical drink served in a jeweled goblet.", use_func=lambda: use_add_item("bird_of_paradise", "Paradise Punch", "BIRD OF PARADISE")),
+    "apple": Item("Apple", cost=0, description="A blush of red and gold skin encloses crisp flesh, with a face-like symmetry that feels almost familiar."),
+    "hard_cider": Item("Hard Cider", cost=0, description="Crisp cider with hints of spice, served in a wooden mug.", use_func=lambda: use_add_item("apple", "Hard Cider", "APPLE")),
+    "coconut_cocktail": Item("Coconut Cocktail", cost=0, description="A blend of iced coconut milk and pineapple rum, served in a coconut shell.", frequency_type="Life"),
+    "dragon_martini": Item("Dragon Martini", cost=0, description="A sleek martini glass filled with chilled vermouth, a giant juicy worm draped elegantly over the rim.", frequency_type="Primal"),
+    "amber_ale": Item("Amber Ale", cost=0, description="A smooth ale with a deep copper hue, brewed with wasp nests.", frequency_type="Primal"),
+    "milkshake": Item("Milkshake", cost=0, description="A cold, creamy shake topped with whipped cream and a cherry.", frequency_type="Primal"),
+    "cola": Item("Cola", cost=0, description="Dark and fizzy with a lingering sweetness. The bottle is always chilled, even when left out in the sun.", frequency_type="Unseelie"),
+    "root_beer": Item("Root Beer", cost=0, description="A rich, bubbly drink brewed with aromatic sassafras.", use_func=lambda: use_add_item("sassafras", "Root Beer", "SASSAFRAS")),
+    "wine": Item("Wine", cost=0, description="A dark, ruby red vintage that swirls like liquid velvet.", frequency_type="Blood"),
+    "sundae": Item("Sundae", cost=0, description="Towering ice cream scoops layered with sweet syrup over a banana boat.", frequency_type="Seelie"),
+    "sunflower_seeds": Item("Sunflower Seeds", cost=0, description="Crunchy seeds filled with the warmth of the Sun.", use_func=lambda: use_add_item("sunflower", "Sunflower Seeds", "SUNFLOWER")),
+    "winter_mints": Item("Winter Mints", cost=0, description="Fresh mints that bring the icy chill of clarity to the mind.", frequency_type="Unseelie"),
+    "pizza": Item("Pizza", cost=0, description="A cheesy, flavorful slice of comfort.", frequency_type="Seelie"),
+    "hotdog": Item("Hotdog", cost=0, description="Perfectly grilled, fully loaded with toppings and bursting with flavor.", frequency_type="Seelie"),
+    "cheeseburger": Item("Cheeseburger", cost=0, description="Topped with melted cheese and smoky bacon, a satisfying ritual feast.", frequency_type="Seelie"),
+    "eggs": Item("Eggs", cost=0, description="A sizzling source of primal sustenance.", frequency_type="Primal"),
+    "biscuits_and_gravy": Item("Biscuits and Gravy", cost=0, description="Warm, fluffy biscuits smothered in rich, savory gravy.", frequency_type="Primal"),
+    "chicken_fried_steak": Item("Chicken-fried Steak", cost=0, description="A hearty, rustic meal.", frequency_type="Primal"),
+    "coffee": Item("Coffee", cost=0, description="Bitter and invigorating.", frequency_type="Primal"),
+    "sweet_tea": Item("Sweet Tea", cost=0, description="Brewed slowly in the sunshine.", frequency_type="Life"),
+
+    # === HERBS ===
+    "belladonna": Item("Belladonna", cost=0, description="Beautiful deadly nightshade."),
+    "mugwort": Item("Mugwort", cost=0, description="Clears the senses and prepares the mind for otherworldly journeys, or just a really weird nap."),
+    "bird_of_paradise": Item("Bird of Paradise", cost=0, description="A vibrant flower representing a bird in flight."),
+    "snowdrop": Item("Snowdrop", cost=0, description="Delicate white flower that bloom in cold weather."),
+    "lemon_balm": Item("Lemon Balm", cost=0, description="A fragrant herb with soothing properties."),
+    "sunflower": Item("Sunflower", cost=0, description="Radiant flowers that follow the sun."),
+    "foxglove": Item("Foxglove", cost=0, description="Deadly and beautiful, this rich bloom flirts with the line between remedy and poison."),
+    "sassafras": Item("Sassafras", cost=0, description="Warmly spiced and grounding, it carries the essence of wild forests and old magic."),
+    "honeycomb": Item("Honeycomb", cost=0, description="A hexagonal structure brimming with golden nectar, nature's alchemy at its finest."),
+    "rose": Item("Rose", cost=0, description="A classic symbol of love, beauty, and the mastery of thorns.", frequency_type="Blood"),
+    "delphinium": Item("Delphinium", cost=0, description="Towering spikes of poison blossoms in deep blues and purples.", frequency_type="Death"),
+    "marigold": Item("Marigold", cost=0, description="Fiery blossoms that shine like tiny suns.", frequency_type="Life"),
+
+    # === ELECTRONICS ===
+    "blues_vinyl": Item("Blues Vinyl", cost=0, description="Smooth, soulful rhythms that root you in raw human emotion.", frequency_type="Primal"),
+    "solfeggio_vinyl": Item("Solfeggio Vinyl", cost=0, description="A mystical record featuring healing tones and vibration.", frequency_type="Life"),
+    "electronic_vinyl": Item("Electronic Vinyl", cost=0, description="Pulsing with synthesizers and electronic beats to spark the listener's creativity.", frequency_type="Storm"),
+    "dream_pop_vinyl": Item("Dream Pop Vinyl", cost=0, description="Ethereal melodies and soft vocals create a floating sensation of serenity and wonder.", frequency_type="Seelie"),
+    "oilbirds_mixtape": Item("Oilbird's Mixtape", cost=0, description="Oilbird's Mixtape.", frequency_type="Unseelie"),
+    "battery": Item("Battery", cost=0, description="A compact power source buzzing with potential, like a gathering storm.", frequency_type="Storm"),
+    "crt_monitor": Item("CRT Monitor", cost=0, description="The monitor flickers and hums with static energy.", frequency_type="Storm"),
+    "radio": Item("Radio", cost=0, description="A staple in every home and car, the radio hums in the background of life.", frequency_type="Seelie"),
+    "murmuration_radio": Item("Murmuration Radio", cost=0, description="A specially attuned device, given to you by Rosella."),
+    "cassette": Item("Cassette", cost=0, description="Audio storage in the palm of your hand, this medium holds the echoes of the departed."),
+    "corrupted_vhs_tape": Item("Corrupted VHS Tape", cost=0, description="A distorted mess of magnetic tape and static filled horror."),
+    "circuit_board": Item("Circuit Board", cost=0, description="A sigil of metallic paths, bridging the gap between human hands and the raw storm of the technological age."),
+    "gold_foil": Item("Gold Foil", cost=0, description="Thin and delicate, it gleams like liquid sunlight and channels energy."),
+
+    # === MISC ===
+    "candle": Item("Candle", cost=0, description="Made with beeswax.", use_func=use_candle),
+    "cigarette": Item("Cigarette", cost=0, description="A slim paper tube packed with bad ideas and numbing relief.", frequency_type="Death"),
+    "catnip": Item("Catnip", cost=0, description="That good dank shit.", frequency_type="Life"),
+    "mdma": Item("MDMA", cost=0, description="Experience physical sensation in a new way.", frequency_type="Life"),
+    "quartz": Item("Quartz", cost=0, description="A crystal from deep within the earth, bridging the mystical and the mechanical."),
+    "copper_wire": Item("Copper Wire", cost=0, description="A spool of conductive brilliance."),
+    "gold_coin": Item("Gold Coin", cost=0, description="A coin brimming with old-world power."),
+    "bone": Item("Bone", cost=0, description="A fragment of something that was once alive."),
+    "holographic_butterfly": Item("Holographic Butterfly", cost=0, description="A delicate, shimmering illusion crafted from fae magic.", frequency_type="Seelie"),
+    "holographic_moth": Item("Holographic Moth", cost=0, description="A faint shimmer crawls across its spectral wings as it hovers between worlds.", frequency_type="Unseelie"),
+    "money": Item("Money", cost=0, description="Crumpled bills, greasy with the touch of a thousand hands."),
+    "atm_card": Item("ATM Card", cost=0, description="A plastic card that can unlock the flow of money at an ATM machine, if you know the 4 digit pin."),  # PLACEHOLDER: ATM machine interaction TBD
+    "aerospace_invaders_figurine": Item("Aerospace Invaders Figurine", cost=0, description="A small vinyl figurine of the famously adorable alien cat."),
+    "aeromech_figurine": Item("Aeromech Figurine", cost=0, description="A sleek, chrome detailed figure of the Aerotech starfighter mech."),
 }
 
 # --- STEP 3: World Creation ---
@@ -264,11 +356,11 @@ default npc_swan = WorldObject("SWAN", "A spectral presence within the manor.", 
 
 # --- SECTOR 01: BLUSHWOOD COURT ---
 default blushwood_1 = Room("GATE", Solid("#1a1a1a"), north="blushwood_2", 
-    contents=[forest_dove, ghost_dealer, herb_belladonna, sector_gate])
+    contents=[forest_dove, ghost_dealer, sector_gate])
 
 default blushwood_2 = Room("PLAZA", Solid("#2a2a2a"), south="blushwood_1", 
     north="manor_exterior", west="carousel", east="cider_mill", 
-    contents=[crossroads_sign, herb_mandrake])
+    contents=[crossroads_sign])
 
 default manor_exterior = Room("MANOR_GATE", Solid("#050505"), south="blushwood_2", 
     contents=[manor_door])
@@ -277,19 +369,19 @@ default carousel = Room("CAROUSEL", Solid("#331100"), east="blushwood_2",
     west="hedge_maze", contents=[patch_cat, jack_o_lantern])
 
 default hedge_maze = Room("HEDGE_MAZE", Solid("#111100"), east="carousel", 
-    contents=[maze_crow, item_bone, item_bar_key, npc_secretary])
+    contents=[maze_crow, item_bar_key, npc_secretary])
 
 default cider_mill = Room("CIDER_MILL", Solid("#112211"), west="blushwood_2", 
     north="river_bank", contents=[mill_door, mill_dog, vending_machine_mill])
 
 default cider_mill_interior = Room("CIDER_MILL_INTERIOR", Solid("#050505"), south="cider_mill", 
-    contents=[npc_seagull, item_apple, mill_trap_door])
+    contents=[npc_seagull, mill_trap_door])
 
 default hidden_bar = Room("HIDDEN_BAR", Solid("#200"), south="cider_mill_interior",
     contents=[npc_toucan, npc_hummingbird, slot_machine, arcade_machine])
 
 default river_bank = Room("RIVER", Solid("#001a1a"), south="cider_mill", 
-    north="cabin_exterior", contents=[npc_ptarmigan, item_river_herb])
+    north="cabin_exterior", contents=[npc_ptarmigan])
 
 default cabin_exterior = Room("CABIN_EXTERIOR", Solid("#1a0000"), south="river_bank", 
     contents=[cabin_roots, cabin_door])
@@ -350,7 +442,7 @@ default parlor_1 = Room("CAVE_ENTRANCE", Solid("#404"), east="p_cafe",
 default p_cafe = Room("CAFE", Solid("#303"), west="parlor_1", contents=[npc_vulture])
 
 default p_records = Room("RECORD_STORE", Solid("#202"), east="parlor_1", 
-    contents=[npc_flying_fox, npc_ghost_cat, item_cassette])
+    contents=[npc_flying_fox, npc_ghost_cat])
 
 default cave_depths = Room("CAVE_DEPTHS", Solid("#000"), south="parlor_1")
 
