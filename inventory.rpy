@@ -101,6 +101,8 @@ default selected_item = None
 
 init python:
     def use_frequency_item():
+        if not selected_item or not selected_item.frequency_type:
+            return
         freq_type = selected_item.frequency_type
         inventory.remove_by_name(selected_item.name)
         inventory.gain_frequency(freq_type)
