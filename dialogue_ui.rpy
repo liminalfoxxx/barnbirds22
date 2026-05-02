@@ -11,9 +11,9 @@ init python:
 
     _portrait_colors = {
         "Dove": "#e1c400",
-        "Raven": "#4700d1",
+        "Raven": "#7755ee",
         "Swan": "#ffffff",
-        "Seagull": "#333366",
+        "Seagull": "#8899cc",
         "Scarlet Tanager": "#0fa",
         "Toucan": "#0fa",
         "Hummingbird": "#0fa",
@@ -40,7 +40,7 @@ screen chat_say(who, what):
 
         # LEFT: Taller portrait window
         frame:
-            background ChatWindow(640, 680)
+            background Frame(Solid("#1a1a1a"), 10, 10)
             xsize 640
             ysize 680
             if not renpy.variant("small"):
@@ -58,7 +58,7 @@ screen chat_say(who, what):
             # Name bar (dark)
             if who is not None:
                 frame:
-                    background ChatWindow(980, 56)
+                    background Frame(Solid("#1a1a1a"), 8, 8)
                     xsize 980
                     ysize 56
                     padding (12, 8)
@@ -92,7 +92,7 @@ screen chat_choice(items):
         yalign 0.60
 
         frame:
-            background ChatWindow(640, 680)
+            background Frame(Solid("#1a1a1a"), 10, 10)
             xsize 640
             ysize 680
             if not renpy.variant("small"):
@@ -103,7 +103,7 @@ screen chat_choice(items):
                     text _current_who size 24 color "#000" align (0.5, 0.9)
 
         frame:
-            background ChatWindow(980, 620)   # taller to fit ~8 buttons
+            background Frame(Solid("#1a1a1a"), 10, 10)   # taller to fit ~8 buttons
             padding (18, 18)
             xsize 980
             ysize 620
@@ -129,14 +129,15 @@ style chat_namebox_text:
     color "#e15a00"
     bold True
 
-# Dialogue text: black
+# Dialogue text: light neutral for dark backgrounds
 style chat_what:
     size 26
-    color "#000000"
+    color "#f0f0f0"
     layout "subtitle"
 
 # Keep window padding minimal; inner frame above controls text position.
 style chat_window:
+    background None
     left_padding 0
     right_padding 0
     top_padding 0
