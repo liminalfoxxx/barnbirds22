@@ -28,19 +28,6 @@ default ptarmigan_healed = False
 default turkey_activated = False
 default cabin_roots_deleted = False
 
-# SPELL DEFINITIONS installed at start (for testing you can add more)
-default ghost_speak = Spell(
-    name="Ghost_Speak.exe",
-    recipe= {"Belladonna": 1, "Candle": 1, "Cassette": 1},
-    description = "Opens communication with the departed."
-)
-
-default animal_speak = Spell(
-    name="Speak with Animals",
-    recipe= {"Catnip": 1, "Bone": 1, "Candle": 1},
-    description = "ANIMAL_TRANSLATOR.EXE: Decodes feline/canine frequencies."
-)
-
 # IMAGES
 image bg = "images/ui/bg.png"
 image player_menu_box = Frame("images/ui/text_player.png", 0, 0)
@@ -111,8 +98,8 @@ label start_debug:
         inventory = Inventory(money=999)
         
         # Learn all spells
-        inventory.learn_spell(ghost_speak)
-        inventory.learn_spell(animal_speak)
+        inventory.learn_spell(ghost_speak_prog)
+        inventory.learn_spell(animal_speak_prog)
         inventory.learn_spell(hack_prog)
         inventory.learn_spell(heal_blight_prog)
         
