@@ -40,15 +40,20 @@ screen chat_say(who, what):
 
         # LEFT: Taller portrait window
         frame:
-            background Frame(Solid("#1a1a1a"), 10, 10)
+            background Solid("#e15a00")
+            padding (2, 2)
             xsize 640
             ysize 680
-            if not renpy.variant("small"):
-                if SideImage():
-                    add SideImage() align (0.5, 0.5)
-                elif who and who in _portrait_colors:
-                    add Solid(_portrait_colors[who], xsize=200, ysize=400) align (0.5, 0.5)
-                    text who size 24 color "#000" align (0.5, 0.9)
+            frame:
+                background Solid("#0d0d0d")
+                xfill True
+                yfill True
+                if not renpy.variant("small"):
+                    if SideImage():
+                        add SideImage() align (0.5, 0.5)
+                    elif who and who in _portrait_colors:
+                        add Solid(_portrait_colors[who], xsize=200, ysize=400) align (0.5, 0.5)
+                        text who size 24 color "#000" align (0.5, 0.9)
 
         # RIGHT: Name bar above the dialogue window
         vbox:
@@ -58,29 +63,43 @@ screen chat_say(who, what):
             # Name bar (dark)
             if who is not None:
                 frame:
-                    background Frame(Solid("#1a1a1a"), 8, 8)
+                    background Solid("#e15a00")
+                    padding (2, 2)
                     xsize 980
                     ysize 56
-                    padding (12, 8)
-                    text who id "who" style "chat_namebox_text"
+                    frame:
+                        background Solid("#0d0d0d")
+                        xfill True
+                        yfill True
+                        padding (12, 8)
+                        text who id "who" style "chat_namebox_text"
 
-            # Dialogue window (white background comes from Character.window_background)
-            window:
-                id "window"
-                style "chat_window"
+            # Dialogue window with orange border
+            frame:
+                background Solid("#e15a00")
+                padding (2, 2)
                 xsize 980
                 ysize 480
-
-                # Inner transparent frame to provide real padding for the text.
                 frame:
-                    background None
-                    left_padding 34
-                    right_padding 28
-                    top_padding 64     # bump down more; adjust to taste
-                    bottom_padding 28
+                    background Solid("#0d0d0d")
+                    xfill True
+                    yfill True
+                    window:
+                        id "window"
+                        style "chat_window"
+                        xfill True
+                        yfill True
 
-                    # Dialogue text (black)
-                    text what id "what" style "chat_what"
+                        # Inner transparent frame to provide real padding for the text.
+                        frame:
+                            background None
+                            left_padding 34
+                            right_padding 28
+                            top_padding 64     # bump down more; adjust to taste
+                            bottom_padding 28
+
+                            # Dialogue text (black)
+                            text what id "what" style "chat_what"
 
 # CHOICE: portrait left, larger choices panel right
 screen chat_choice(items):
@@ -92,29 +111,39 @@ screen chat_choice(items):
         yalign 0.60
 
         frame:
-            background Frame(Solid("#1a1a1a"), 10, 10)
+            background Solid("#e15a00")
+            padding (2, 2)
             xsize 640
             ysize 680
-            if not renpy.variant("small"):
-                if SideImage():
-                    add SideImage() align (0.5, 0.5)
-                elif _current_who and _current_who in _portrait_colors:
-                    add Solid(_portrait_colors[_current_who], xsize=200, ysize=400) align (0.5, 0.5)
-                    text _current_who size 24 color "#000" align (0.5, 0.9)
+            frame:
+                background Solid("#0d0d0d")
+                xfill True
+                yfill True
+                if not renpy.variant("small"):
+                    if SideImage():
+                        add SideImage() align (0.5, 0.5)
+                    elif _current_who and _current_who in _portrait_colors:
+                        add Solid(_portrait_colors[_current_who], xsize=200, ysize=400) align (0.5, 0.5)
+                        text _current_who size 24 color "#000" align (0.5, 0.9)
 
         frame:
-            background Frame(Solid("#1a1a1a"), 10, 10)   # taller to fit ~8 buttons
-            padding (18, 18)
+            background Solid("#e15a00")
+            padding (2, 2)
             xsize 980
             ysize 620
-
-            vbox:
-                spacing 14
+            frame:
+                background Solid("#0d0d0d")
                 xfill True
-                for i in items:
-                    textbutton i.caption:
-                        action i.action
-                        style "chat_choice_button"
+                yfill True
+                padding (18, 18)
+
+                vbox:
+                    spacing 14
+                    xfill True
+                    for i in items:
+                        textbutton i.caption:
+                            action i.action
+                            style "chat_choice_button"
 
 # Styles
 style chat_window is default
@@ -147,8 +176,8 @@ style chat_window:
 style chat_choice_button:
     xfill True
     padding (12, 10)
-    background Frame(Solid("#1a1a1a"), 6, 6)
-    hover_background Frame(Solid("#2a2a2a"), 6, 6)
+    background Frame(Solid("#e15a00"), 1, 1)
+    hover_background Frame(Solid("#fff"), 1, 1)
 
 style chat_choice_button_text:
     size 28

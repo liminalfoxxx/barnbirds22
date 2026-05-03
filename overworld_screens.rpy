@@ -191,23 +191,28 @@ screen world_interface():
                                         label "SELECT_MODULE" text_color "#e15a00" text_size 20
                                         textbutton "[[ X ]]" action SetVariable("interaction_mode", "main") xalign 1.0 text_idle_color "#f00"
 
-                                    vpgrid:
-                                        cols 1
+                                    viewport:
+                                        scrollbars "vertical"
                                         mousewheel True
-                                        spacing 5
+                                        draggable True
+                                        yinitial 0
+                                        yfill True
                                         xfill True
+                                        vbox:
+                                            spacing 5
+                                            xfill True
 
-                                        if not inventory.items:
-                                            text "NO_MODULES_FOUND" color "#444" size 18 italic True
-                                        else:
-                                            for item in inventory.items:
-                                                textbutton "> [item.name]":
-                                                    action [
-                                                        Function(use_item_on_target, current_target, item), 
-                                                        SetVariable("interaction_mode", "main")
-                                                    ]
-                                                    text_idle_color "#ccc"
-                                                    text_hover_color "#e15a00"
+                                            if not inventory.items:
+                                                text "NO_MODULES_FOUND" color "#444" size 18 italic True
+                                            else:
+                                                for item in inventory.items:
+                                                    textbutton "> [item.name]":
+                                                        action [
+                                                            Function(use_item_on_target, current_target, item), 
+                                                            SetVariable("interaction_mode", "main")
+                                                        ]
+                                                        text_idle_color "#ccc"
+                                                        text_hover_color "#e15a00"
 
             # --- FREQUENCY COLUMN ---
             vbox:

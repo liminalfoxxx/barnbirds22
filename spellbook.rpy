@@ -327,11 +327,15 @@ screen spellbook_screen():
                             vbox:
                                 spacing 20
 
-                                # Optional program image
-                                if renpy.loadable("gui/programs/" + selected_program.name + ".png"):
-                                    add "gui/programs/[selected_program.name].png" xalign 0.5
-                                else:
-                                    add Solid("#222", xsize=300, ysize=200) xalign 0.5
+                                # Optional program image (fixed container keeps layout stable)
+                                fixed:
+                                    xsize 300
+                                    ysize 200
+                                    xalign 0.5
+                                    if renpy.loadable("gui/programs/" + selected_program.name + ".png"):
+                                        add "gui/programs/[selected_program.name].png" align (0.5, 0.5)
+                                    else:
+                                        add Solid("#222", xsize=300, ysize=200) align (0.5, 0.5)
 
                                 text "[selected_program.name]" size 40 color "#ff8000"
                                 text "[selected_program.description]" size 24 color "#ccc"
@@ -386,19 +390,32 @@ screen spellbook_screen():
                                         text "[[ INSUFFICIENT_RESOURCES ]]" color "#ff8000" size 40 xalign 0.5
 
                                 null height 20
-                                label "FREQUENCY_LEVELS" text_color "#e15a00"
-                                for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Life", "Death", "Blood", "Void"]:
-                                    hbox:
-                                        spacing 10
-                                        $ freq_label = "> " + freq_name.upper() + "....."
-                                        $ freq_val = 0 if freq_name == "Void" else inventory.frequency[freq_name]
-                                        $ is_active = selected_program.frequency_type == freq_name
-                                        text "[freq_label]" color ("#fff" if is_active else "#e15a00") size 22
-                                        text "[freq_val]" color ("#0f0" if is_active else "#ccc") size 22
                         else:
                             vbox:
                                 align (0.5, 0.4)
                                 text "SELECT_PROGRAM_FOR_ANALYSIS" color "#444" size 34
+
+            # --- FREQUENCY COLUMN ---
+            vbox:
+                xsize 280
+                spacing 0
+
+                fixed:
+                    xsize 280 ysize 280
+                    add OS_Window(280, 280)
+                    frame:
+                        background None
+                        padding (15, 15)
+                        vbox:
+                            spacing 6
+                            label "FREQ_LEVELS" text_color "#e15a00" text_size 18
+                            for freq_name in ["Primal", "Seelie", "Unseelie", "Storm", "Life", "Death", "Blood", "Void"]:
+                                $ freq_val = 0 if freq_name == "Void" else inventory.frequency[freq_name]
+                                $ is_active = (selected_program is not None) and (selected_program.frequency_type == freq_name)
+                                hbox:
+                                    spacing 6
+                                    text ("> " + freq_name.upper() + "..") color ("#fff" if is_active else "#e15a00") size 18
+                                    text "[freq_val]" color ("#0f0" if is_active else "#ccc") size 18
 
 
 screen satellite_screen(target):
