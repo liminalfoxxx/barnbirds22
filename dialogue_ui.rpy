@@ -141,9 +141,13 @@ screen chat_choice(items):
                     spacing 14
                     xfill True
                     for i in items:
-                        textbutton i.caption:
-                            action i.action
-                            style "chat_choice_button"
+                        frame:
+                            background Solid("#e15a00")
+                            padding (2, 2)
+                            xfill True
+                            textbutton i.caption:
+                                action i.action
+                                style "chat_choice_button"
 
 # Styles
 style chat_window is default
@@ -176,10 +180,10 @@ style chat_window:
 style chat_choice_button:
     xfill True
     padding (12, 10)
-    background Frame(Solid("#e15a00"), 1, 1)
-    hover_background Frame(Solid("#fff"), 1, 1)
+    background Solid("#0d0d0d")
+    hover_background Solid("#e15a00")
 
 style chat_choice_button_text:
     size 28
     color "#e15a00"
-    hover_color "#ffffff"
+    hover_color "#0d0d0d"

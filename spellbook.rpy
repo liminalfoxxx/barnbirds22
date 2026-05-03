@@ -300,7 +300,7 @@ screen spellbook_screen():
 
             # --- RIGHT COLUMN: Analysis & Execution ---
             vbox:
-                xfill True
+                xsize 1010
                 spacing 20
 
                 hbox:
