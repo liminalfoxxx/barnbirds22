@@ -66,7 +66,7 @@ init python:
                     # Already decrypted - just talk
                     renpy.jump(target.label)
             else:
-                renpy.notify("INCOMPATIBLE_SUBJECT_TYPE")
+                renpy.notify("DOES_NOT_MEET_INVOCATION_PARAMETER")
                 renpy.jump("overworld_loop")
 
         # --- SPEAK_WITH_ANIMALS LOGIC ---
@@ -89,7 +89,7 @@ init python:
                     # Translator already active - just talk
                     renpy.jump(target.label)
             else:
-                renpy.notify("INCOMPATIBLE_SUBJECT_TYPE")
+                renpy.notify("DOES_NOT_MEET_INVOCATION_PARAMETER")
                 renpy.jump("overworld_loop")
 
         # --- SATELLITE LOGIC ---
@@ -235,7 +235,7 @@ init python:
                     renpy.notify("Nothing to hack here! Or this device is already functioning.")
                     renpy.jump("overworld_loop")
             else:
-                renpy.notify("INCOMPATIBLE_SUBJECT_TYPE")
+                renpy.notify("DOES_NOT_MEET_INVOCATION_PARAMETER")
                 renpy.jump("overworld_loop")
 
         # System Reboot / default
