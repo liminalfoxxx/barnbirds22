@@ -3,6 +3,7 @@
 # --- INITIAL STATE & VARIABLES ---
 default inventory = Inventory(money=10)
 default journal_entries = []
+default game_start_time = ""
 
 default death_count = 0
 default last_room = None  # Used for resurrection
@@ -37,6 +38,11 @@ image aes_forest = "images/bgs/bg_forest.png"
 
 label start:
     $ quick_menu = False
+
+    python:
+        import datetime
+        game_start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        journal_entries = [JournalEntry("ROOT", "System Online", game_start_time, "OS stabilized. Cleric credentials verified. Blight investigation beginning in Sector 01.")]
 
     scene bg
     sys "AvisMortem OS 1.0 ... Initializing."

@@ -330,6 +330,16 @@ default npc_goose = WorldObject("GOOSE", "Main merchant of the square.", Solid("
 default npc_ostrich = WorldObject("OSTRICH", "A tall bird selling niche wares.", Solid("#333", xsize=300), Solid("#444", xsize=60), 700, 150, can_talk=True, label="shop_ostrich")
 default item_money = WorldObject("Money", "Lost currency units.", Solid("#0f0", xsize=100), Solid("#0f0", xsize=20), 500, 500, can_take=True)
 default sundapple_vending = WorldObject("VENDING_SQUARE", "Dispensing city-grade modules.", Solid("#800", xsize=300), Solid("#911", xsize=50), 850, 250, can_talk=True, label="vending_sundapple")
+default atm_machine = WorldObject(
+    name="ATM_MACHINE",
+    description="A freestanding ATM unit. The screen glows faintly.",
+    img=Solid("#222", xsize=300, ysize=400),
+    sprite=Solid("#333", xsize=50, ysize=90),
+    x=200, y=150,
+    can_talk=True,
+    can_cast=True,
+    label="atm_sundapple"
+)
 default npc_raven = WorldObject("RAVEN", "The local archivist.", Solid("#111", xsize=300), Solid("#000", xsize=60), 200, 300, can_talk=True, label="talk_raven")
 default library_pc = WorldObject("PC_TERMINAL", "OS_DATA_INDEX. Accessing files...", Solid("#0ff", xsize=300), Solid("#0ff", xsize=80), 500, 200, can_talk=True, can_cast=True, label="talk_library_pc")
 default library_bin = WorldObject("NEWSPAPER_BIN", "Old headlines about the Manor.", Solid("#aaa", xsize=200), Solid("#aaa", xsize=50), 800, 450, can_talk=True, label="talk_library_bin")
@@ -420,9 +430,9 @@ default manor_core = Room(
 )
 
 # SUNDAPPLE SQUARE 
-default sundapple_1 = Room("MALL", Solid("#ffcc00"), north="sd_church", 
-    east="sd_library", west="sd_diner", 
-    contents=[npc_magpie, npc_goose, npc_ostrich, item_money, sundapple_vending])
+default sundapple_1 = Room("MALL", Solid("#ffcc00"), north="sd_church",
+    east="sd_library", west="sd_diner",
+    contents=[npc_magpie, npc_goose, npc_ostrich, item_money, sundapple_vending, atm_machine])
 
 default sd_library = Room("LIBRARY_LOBBY", Solid("#422"), west="sundapple_1", 
     north="sd_shelves", contents=[npc_raven, library_pc, library_bin])
