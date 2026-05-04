@@ -110,9 +110,9 @@ screen prologue_video_screen():
             xalign 0.5
             yalign 0.5
             if prologue_open1_done:
-                add Movie(size=(640,360), play="images/vids/open2.webm", loop=True) align (0.5, 0.5)
+                add Movie(size=(640,360), play="images/vids/open_2.webm", loop=True) align (0.5, 0.5)
             else:
-                add Movie(size=(640,360), play="images/vids/open1.webm", loop=False) align (0.5, 0.5)
+                add Movie(size=(640,360), play="images/vids/open_1.webm", loop=False) align (0.5, 0.5)
 
     if prologue_open1_done:
         textbutton "[VIEW MODULES]" style "prologue_initial_button" action [SetVariable("prologue_modules_ready", True), Hide("prologue_video_screen")] xalign 0.5
