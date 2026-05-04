@@ -182,7 +182,7 @@ init python:
                 renpy.notify("ERROR: NO_TARGET_SELECTED")
                 renpy.jump("overworld_loop")
                 return
-            valid_targets = {"AUTOMATON_GUIDE", "PC_TERMINAL", "ARCADE_MACHINE", "VENDING_MACHINE", "VENDING_MILL", "VENDING_SQUARE", "VENDING_PARLOR", "SLOT_MACHINE"}
+            valid_targets = {"AUTOMATON_GUIDE", "PC_TERMINAL", "ARCADE_MACHINE", "VENDING_MACHINE", "VENDING_MILL", "VENDING_SQUARE", "VENDING_PARLOR", "SLOT_MACHINE", "ATM_MACHINE"}
             if target_id in valid_targets:
                 # Automaton Guide one-shot activation
                 if target_id == "AUTOMATON_GUIDE" and not getattr(store, "turkey_activated", False):
@@ -227,6 +227,15 @@ init python:
                     if inv.execute_program(program):
                         store.hack_target = target
                         renpy.jump("hack_slot_machine")
+                    else:
+                        renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
+                        renpy.jump("overworld_loop")
+
+                # ATM machine
+                elif target_id == "ATM_MACHINE":
+                    if inv.execute_program(program):
+                        store.hack_target = target
+                        renpy.jump("hack_atm_machine")
                     else:
                         renpy.notify("ERROR: INSUFFICIENT_COMPONENTS")
                         renpy.jump("overworld_loop")

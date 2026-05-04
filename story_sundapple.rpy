@@ -93,6 +93,45 @@ label vending_sundapple:
             jump overworld_loop
     jump overworld_loop
 
+# --- ATM MACHINE ---
+
+label atm_sundapple:
+    "SUNDAPPLE_ATM // UNIT_04"
+    "PLEASE INSERT CARD OR SELECT AN OPTION."
+    menu:
+        "INSERT ATM CARD":
+            if inventory.has_item("ATM Card"):
+                jump atm_sundapple_pin
+            else:
+                "CARD_NOT_FOUND. Please insert a valid ATM card."
+                jump atm_sundapple
+        "[[ X ]] EXIT":
+            jump overworld_loop
+    jump overworld_loop
+
+label atm_sundapple_pin:
+    "CARD_ACCEPTED. PLEASE ENTER YOUR 4-DIGIT PIN."
+    menu:
+        "1 - 5047":
+            jump atm_sundapple_withdraw
+        "2 - 0000":
+            jump atm_sundapple_wrong_pin
+        "3 - 1234":
+            jump atm_sundapple_wrong_pin
+        "4 - ????":
+            jump atm_sundapple_wrong_pin
+
+label atm_sundapple_wrong_pin:
+    "INCORRECT PIN. ACCESS DENIED."
+    jump atm_sundapple
+
+label atm_sundapple_withdraw:
+    "PIN_ACCEPTED. ACCOUNT_VERIFIED."
+    "WITHDRAWAL AMOUNT: 100 UNITS."
+    $ inventory.money += 100
+    "100 UNITS DISPENSED. THANK YOU."
+    jump overworld_loop
+
 # --- THE LIBRARY ---
 
 label talk_raven:

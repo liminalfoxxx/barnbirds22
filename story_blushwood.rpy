@@ -1087,3 +1087,9 @@ label hack_slot_machine:
     sys "// TODO: Slot machine hack content goes here."
     $ can_travel = True
     jump overworld_loop
+
+label hack_atm_machine:
+    sys "HACK.EXE interfacing with ATM_MACHINE..."
+    sys "// TODO: ATM hack content goes here."
+    $ can_travel = True
+    jump overworld_loop
